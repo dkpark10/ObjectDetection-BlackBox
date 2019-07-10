@@ -18,6 +18,8 @@ ex)20190625_105548
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <pwd.h>
+#include <grp.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -26,7 +28,9 @@ ex)20190625_105548
 #define BUFSIZE 1024
 #define TRUE 1 
 #define FALSE 0
+#define ll long long
 using namespace std;
+vector<string>vs;
 
 typedef struct DirNode{
     char dirname[100];
@@ -53,6 +57,8 @@ extern void Push_DirName(Queue* dirQ, const char *dirname)
     DirNode* Newnode; 
     Newnode = (DirNode*)malloc(sizeof(DirNode));
     strcpy(Newnode->dirname, dirname);
+    string s = Newnode->dirname;
+    vs.push_back(s);
     Newnode->link = NULL;
 
     if(dirQ->front == NULL){
@@ -67,11 +73,10 @@ extern void Push_DirName(Queue* dirQ, const char *dirname)
     }
 }
 
-extern char* Pop_DirName(Queue* dirQ)
+extern void Pop_DirName(Queue* dirQ)
 {
     DirNode *oldest;
     oldest = dirQ->front;
-    char *ptr = oldest->dirname;
 
     if(oldest == NULL){
         return;
@@ -81,16 +86,13 @@ extern char* Pop_DirName(Queue* dirQ)
         oldest->link = NULL;
     }
     free(oldest);
-
-    return ptr;
 }
 
 extern char* Get_Del_DirName(Queue* dirQ)
 {
     DirNode* temp;
     temp = dirQ->front;
-    char* ptr;
-    ptr = temp->dirname;
+    char *ptr = temp->dirname;
 
     if(temp->link==NULL){
         return NULL;
@@ -125,54 +127,73 @@ extern void TimetoString(time_t timer, char *str)
 
 int main(int argc, char *argv[])
 {
-    struct timeval curtime;
-    gettimeofday(&curtime, NULL);
-    printf("%ld: %ld\n", curtime.tv_sec, curtime.tv_usec);
+    // struct timeval curtime;
+    // gettimeofday(&curtime, NULL);
+    // printf("%ld: %ld\n", curtime.tv_sec, curtime.tv_usec);
 
     //
-    DIR* dir;
-    Queue* dirQ = Create_DirQueue();
+    // DIR* dir;
+    // struct dirent *dp;
+    // Queue* dir_list = Create_DirQueue();
     char path[] = "/home/dokyun/VScodedk/BlackBox";
-    char prev_time[100];
-    char cur_time[100];
-    char *prev_hour;
-    char *cur_hour;
-    char *del_dir_name;
+    // char prev_time[100];
+    // char cur_time[100];
+    // char *prev_hour;
+    // char *cur_hour;
+    // char *del_dir_name;
 
-    dir = opendir(path);
+    // dir = opendir(path);
 
-    time_t timer;
-    timer = time(NULL);                         // 현재 시각을 초 단위로 얻기
+    // time_t timer;
+    // timer = time(NULL);                         // 현재 시각을 초 단위로 얻기
     
-    TimetoString(timer,prev_time);
-    Push_DirName(dirQ, prev_time);
-    prev_hour = strstr(prev_time, "_");         // "_"의 주소 반환
-    prev_hour += 2;                             // + 2만큼 포인터 연산해서 시간을 가리킴
+    // TimetoString(timer,prev_time);
+    // Push_DirName(dir_list, prev_time);
+    // prev_hour = strstr(prev_time, "_");         // "_"의 주소 반환
+    // prev_hour += 2;                             // + 2만큼 포인터 연산해서 시간을 가리킴
 
-    if (mkdir(prev_time, 0776) < 0 && errno != EEXIST){
-        perror("Create Folder Fail\n");
+    // if (mkdir(prev_time, 0776) < 0 && errno != EEXIST){
+    //     perror("Create Folder Fail\n");
+    //     return -1;
+    // }
+
+    // printf("%s",prev_time); // pass pass pass pass
+
+    // while (1){
+        
+    //     TimetoString(timer, cur_time);
+    //     cur_hour = strstr(cur_time, "_");
+    //     cur_hour += 2;
+
+    //     if (*cur_hour != *prev_hour){
+    //         if (mkdir(cur_time, 0776) < 0 && errno != EEXIST){
+    //             perror("Create Folder Fail\n");
+    //             return -1;
+    //         }
+    //         Push_DirName(dir_list, cur_time);
+    //         strcpy(prev_time, cur_time);
+    //     }
+    //     sleep(5);
+    // }
+    // free(dir_list);
+
+    DIR *pDir;
+    struct dirent *pNode;
+    struct stat buf;
+
+    if ((pDir = opendir(path)) == NULL)
+    {
+        perror("Failed to open directory");
         return -1;
     }
 
-    printf("%s",prev_time); // pass
-
-    while (1){
-        
-        TimetoString(timer, cur_time);
-        cur_hour = strstr(cur_time, "_");
-        cur_hour += 2;
-
-        if (*cur_hour != *prev_hour){
-            if (mkdir(cur_time, 0776) < 0 && errno != EEXIST){
-                perror("Create Folder Fail\n");
-                return -1;
-            }
-            Push_DirName(dirQ, cur_time);
-            strcpy(prev_time, cur_time);
+    while((pNode = readdir(pDir)) != NULL){
+        lstat(path, &buf);
+        if(S_ISREG(buf.st_mode)){
+            printf("file is %s\n", pNode->d_name);
+            printf("file size is %ld\n",(long)buf.st_size);
         }
-        sleep(5);
     }
-    free(dirQ);
 
     return 0;
 }
