@@ -1,5 +1,7 @@
 /*
 1분마다 영상녹화 저장
+g++ `pkg-config --cflags opencv` -o Video_Rec Video_Rec.cpp `pkg-config --libs opencv` 
+compile code
 */
 #include <opencv2/opencv.hpp>
 #include <iostream>
