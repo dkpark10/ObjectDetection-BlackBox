@@ -187,7 +187,6 @@ string Video_Date_Name()
     strcat(base_path,fol);
     strcat(base_path,"/");
     strcat(base_path,vid);
-    strcat(base_path,"/");
     strcat(base_path,".avi");
 
     return base_path;
