@@ -174,11 +174,23 @@ extern void TimetoString(time_t timer, char *str, int time_type)
 
 string Video_Date_Name()
 {
-    return "/home/dokyun/DKVScode/Blackbox" + '/' + folder_list.front() +
-           '/' + video_list.front() + ".avi";
+    char fol[1024]; 
+    char vid[1024];
+    char base_path[1024] = "/home/nvidia/DKblackbox/";
 
-    // return "/home/nvidia/DKblackbox" + folder_list.front() + "/" 
-    // + video_list.front() + ".avi";
+    for(int i=0; i<folder_list.front().size(); i++)
+        fol[i] = folder_list.front().at(i);
+    
+    for(int i=0; i<video_list.front().size(); i++)
+        vid[i] = video_list.front().at(i);
+    
+    strcat(base_path,fol);
+    strcat(base_path,"/");
+    strcat(base_path,vid);
+    strcat(base_path,"/");
+    strcat(base_path,".avi");
+
+    return base_path;
 }
 
 int Create_Folder(time_t timer)
@@ -248,11 +260,11 @@ int Video_Record()
 
     ll max_size = Get_Disk_Size(DISK_MAX);
     ll ava_size = Get_Disk_Size(DISK_AVA);
-    ll limit = max_size * 0.2;
+    ll limit = max_size * 0.35;
 
     //비디오 캡쳐 초기화
-    VideoCapture cap(0);
-	if (!cap.isOpened()) {
+    VideoCapture cap(Init_Pipeline(640, 480, 30.0));
+    if (!cap.isOpened()) {
 		cerr << "cap opened is fail" << endl;
 		return -1;
 	}
@@ -277,15 +289,12 @@ int Video_Record()
         string video_date_name = Video_Date_Name();
 
         FOL_TIME end_folder_time = time(NULL);
-        VID_TIME begin_vid_time = time(NULL);
-        
         ll folder_hour = (ll)prev_fol + 3600;
+        
+        VID_TIME begin_vid_time = time(NULL);
         ll video_minute = (ll)begin_vid_time + 60;
 
-        writer.open("123.avi", fourcc, 30.0, size, true);
-        time_t init = time(NULL);
-		ll minute = (ll)init + 60;
-        writer.open("123.avi", fourcc, 30.0, size, true);
+        writer.open(video_date_name, fourcc, 30.0, size, true);
            
         if (!writer.isOpened()) {
 			cout << "error!! uu uu so sad " << endl;
@@ -355,7 +364,6 @@ int main(int argc, char *argv[])
     // struct statfs stfs;
     // struct stat st;
     // dir = opendir(path);
-
     // Queue* dir_list = Create_DirQueue();
 
     Video_Record();
