@@ -174,8 +174,8 @@ extern void TimetoString(time_t timer, char *str, int time_type)
 
 string Video_Date_Name()
 {
-    return "/home/dokyun/DKVScode/Blackbox" + folder_list.front() + "/" +
-           video_list.front() + ".avi";
+    return "/home/dokyun/DKVScode/Blackbox" + '/' + folder_list.front() +
+           '/' + video_list.front() + ".avi";
 
     // return "/home/nvidia/DKblackbox" + folder_list.front() + "/" 
     // + video_list.front() + ".avi";
