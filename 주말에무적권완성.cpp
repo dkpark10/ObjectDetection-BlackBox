@@ -281,35 +281,37 @@ int Video_Record()
 
     FOL_TIME prev_fol = time(NULL);                       // init time
     Create_Folder(prev_fol);                              // init create
+    ll init_time = prev_fol / 3600;
 
     //////////////////////////////////////////////////////// REC START!! ///////////////////////////////////////////////////////////////////////////
     while (1){
 
-        string video_date_name = Video_Date_Name();
-
         FOL_TIME end_folder_time = time(NULL);
-        ll folder_hour = (ll)prev_fol + 3600;
+        // ll folder_hour = (ll)prev_fol + 3600;
         
         VID_TIME begin_vid_time = time(NULL);
         ll video_minute = (ll)begin_vid_time + 60;
 
-        writer.open(video_date_name, fourcc, 30.0, size, true);
+        string video_title = Video_Date_Name();
+        writer.open(video_title, fourcc, 30.0, size, true);
            
         if (!writer.isOpened()) {
 			cout << "error!! uu uu so sad " << endl;
 			return 1;
 		}
 
-        if(end_folder_time == folder_hour){
+        if(init_time < (end_folder_time / 3600)){
             
             char new_folder_time_name[100];
             Create_Folder(end_folder_time);
             TimetoString(end_folder_time, new_folder_time_name, BY_MINUTE);
             folder_list.push(new_folder_time_name);
-            prev_fol = (ll)end_folder_time;
+            folder_list.pop();
+            init_time = (end_folder_time / 3600);
         }
         
         if(limit > ava_size){
+
             char del_target[100]= "/home/dokyun/DKVScode/Blackbox/";
             char temp[100] = "";
 
@@ -337,10 +339,10 @@ int Video_Record()
             waitKey(15);
 
             if (end_video_time == video_minute){
-                char new_video_time_name[100];
-                TimetoString(end_video_time, new_video_time_name, BY_SECOND);
+                char new_video_title[100];
+                TimetoString(end_video_time, new_video_title, BY_SECOND);
                 video_list.pop();
-                video_list.push(new_video_time_name);
+                video_list.push(new_video_title);
                 break;
             }
         }
